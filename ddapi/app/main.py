@@ -7,7 +7,7 @@ url = "https://rumble.com/-livestream-api/get-data"
 headers = {'Accept': "application/json", "User-Agent": "Mozilla/5.0"}
 params = {"key": "zOK4ZBwdcCp8C0GBl-9bN-4Im9fqIckMGn-01KQyXT3-W8YRiu5zkbQmiaApTnsZAbdaSU3-WL8RRgi8J0bdsw"}
 
-app = FastAPI(docs_url=None)
+app = FastAPI(docs_url=None, redoc_url=None)
 
 @app.get("/e117d001ff1e4e27ba7bb306689c81eb84d564dd547c40922fe3c9603ad3efd4")
 async def rumble():

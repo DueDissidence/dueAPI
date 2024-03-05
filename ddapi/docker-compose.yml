@@ -4,10 +4,9 @@ services:
   ddapi:
     build: ./
     container_name: ${CONTAINER}
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: gunicorn app.main:app --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -t 900
     user: "${PUID}:${PGID}"
     volumes:
-      - ./app:/app
       - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
     networks:
@@ -21,6 +20,7 @@ services:
       - traefik.http.routers.${CONTAINER}.entrypoints=https
       - traefik.http.routers.${CONTAINER}.rule=Host(`api.$DOMAINNAME`)
       - traefik.http.services.${CONTAINER}.loadbalancer.server.port=8000
+      - traefik.http.routers.${CONTAINER}.tls.certresolver=cf
 
 networks:
   web:

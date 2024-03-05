@@ -1,10 +1,9 @@
 #! /bin/bash
 
-# Setup devcerts to allow for HTTPS ( This doesn't seem to be working )
-mkdir -p devcerts
-cd devcerts
-mkcert -install
-mkcert -cert-file cert.pem -key-file key.pem localhost tf.localhost api.localhost
+if test -f acme.json; then
+  rm acme.json
+fi
+touch acme.json
+chmod 600 acme.json
 
-cd ..
 docker compose up --build -d

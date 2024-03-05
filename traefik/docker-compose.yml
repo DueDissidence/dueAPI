@@ -11,8 +11,12 @@ services:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --providers.docker.exposedbydefault=false
-      - --providers.file.directory=/etc/certs/
-      - --providers.file.watch=true
+      - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+      - --certificatesresolvers.cf.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.cf.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesresolvers.cf.acme.storage=/acme.json
+      - --certificatesresolvers.cf.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.cf.acme.dnsChallenge=true
     ports:
       - "80:80"
       - "443:443"
@@ -22,9 +26,12 @@ services:
     env_file:
       - .env
     volumes:
-      - ./devcerts:/etc/certs
+      - ./acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
+    environment:
+      - CF_API_EMAIL=$CLOUDFLARE_EMAIL
+      - CF_API_KEY=$CLOUDFLARE_API_KEY
     labels:
       # global redirect to https
       - traefik.http.routers.http-catchall.entrypoints=http
@@ -38,6 +45,7 @@ services:
       - traefik.http.routers.traefik.entrypoints=https
       - traefik.http.routers.traefik.rule=Host(`tf.$DOMAINNAME`)
       - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls.certresolver=cf
 
       # BasicAuth
       - traefik.http.routers.traefik.middlewares=authtraefik
