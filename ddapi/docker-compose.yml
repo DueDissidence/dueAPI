@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  ddapi:
+    build: ./
+    container_name: ${CONTAINER}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    user: "${PUID}:${PGID}"
+    volumes:
+      - ./app:/app
+      - /etc/timezone:/etc/timezone:ro
+    restart: unless-stopped
+    networks:
+      - web
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.${CONTAINER}.tls=true
+      - traefik.http.routers.${CONTAINER}.entrypoints=https
+      - traefik.http.routers.${CONTAINER}.rule=Host(`api.$DOMAINNAME`)
+      - traefik.http.services.${CONTAINER}.loadbalancer.server.port=8000
+
+networks:
+  web:
+    external: true

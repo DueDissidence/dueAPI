@@ -1,0 +1,11 @@
+# Test your FastAPI endpoints
+
+GET http://api.localhost/e117d001ff1e4e27ba7bb306689c81eb84d564dd547c40922fe3c9603ad3efd4
+Accept: application/json
+
+###
+
+GET http://api.localhost/redoc
+Accept: application/json
+
+###

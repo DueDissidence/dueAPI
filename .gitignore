@@ -1,0 +1,4 @@
+.env
+.idea
+traefik/devcerts
+acme.json

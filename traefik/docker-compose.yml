@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v2.8
+    container_name: traefik
+    restart: always
+    command:
+      - --api=true
+      - --providers.docker=true
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/etc/certs/
+      - --providers.file.watch=true
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - web
+      - local
+    env_file:
+      - .env
+    volumes:
+      - ./devcerts:/etc/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      # global redirect to https
+      - traefik.http.routers.http-catchall.entrypoints=http
+      - traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
+      - traefik.http.routers.http-catchall.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+      # Dashboard
+      - traefik.enable=true
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.entrypoints=https
+      - traefik.http.routers.traefik.rule=Host(`tf.$DOMAINNAME`)
+      - traefik.http.routers.traefik.service=api@internal
+
+      # BasicAuth
+      - traefik.http.routers.traefik.middlewares=authtraefik
+      - traefik.http.middlewares.authtraefik.basicauth.users=${BASICAUTH}
+
+networks:
+  web:
+    name: "web"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  local:
+    name: "local"
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
