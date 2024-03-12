@@ -1,4 +1,5 @@
 .env
 .idea
-traefik/devcerts
+traefik/certs
 acme.json
+frontend/node_modules
