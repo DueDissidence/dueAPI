@@ -13,25 +13,28 @@ app = FastAPI()
 @app.get("/rants")
 async def rants() -> dict:
     data = None
+    code = 200
     # Sending GET request
     async with httpx.AsyncClient(headers=headers) as client:
         try:
             response = await client.get(url, params=params)
-            if response.status_code == 200:
+            code = response.status_code
+            if code == 200:
                 data = response.json()
         except httpx.ConnectTimeout:
             pass
 
-    livestream = parse_livestream(data)
+    livestream = parse_livestream(data, code)
     return livestream
 
 
-def parse_livestream(data=None):
+def parse_livestream(data, code):
     livestream = {
         'rants': [],
         'watching': 0,
         'likes': 0,
-        'title': "No Livestream Found"
+        'title': "No Livestream Found",
+        'status': code
     }
 
     if data is not None:

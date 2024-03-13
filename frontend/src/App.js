@@ -54,10 +54,14 @@ const App = () => {
     await fetch("/api/rants")
       .then(response => response.json())
       .then(livestream => {
-        setRants(livestream.rants)
-        setTitle(livestream.title)
-        setLikes(livestream.likes)
-        setWatching(livestream.watching)
+        if (livestream.status === 200) {
+          setRants(livestream.rants)
+          setTitle(livestream.title)
+          setLikes(livestream.likes)
+          setWatching(livestream.watching)
+        } else {
+          console.log(livestream)
+        }
       });
   }
 
